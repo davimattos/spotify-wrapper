@@ -1,10 +1,8 @@
 import chai, { expect } from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
-import sinonStubPromise from "sinon-stub-promise";
 
 chai.use(sinonChai);
-sinonStubPromise(sinon);
 
 global.fetch = require("node-fetch");
 
@@ -40,21 +38,46 @@ describe("Spotify Wrapper", () => {
   });
 
   describe("Generic search", () => {
-    it("should call the fetch function", () => {
-      const fetchedStub = sinon.stub(global, "fetch");
-      const artists = search();
+    let fetchedStub;
+    beforeEach(() => {
+      fetchedStub = sinon.stub(global, "fetch");
+      fetchedStub.resolves({ json: () => ({ artist: "tania" }) });
+    });
 
-      expect(fetchedStub).to.have.been.calledOnce;
+    afterEach(() => {
       fetchedStub.restore();
     });
 
-    it("should receive the correct url to fetch", () => {
-      const fetchedStub = sinon.stub(global, "fetch");
+    it("should call the fetch function", () => {
+      const artists = search();
+      expect(fetchedStub).to.have.been.calledOnce;
+    });
 
+    it("should receive the correct url to fetch", () => {
+      context("passing one type", () => {
+        const artists = search("tania", "artist");
+        expect(fetchedStub).to.have.been.calledWith(
+          "https://api.spotify.com/v1/search?query=tania&type=artist"
+        );
+
+        const albums = search("tania", "album");
+        expect(fetchedStub).to.have.been.calledWith(
+          "https://api.spotify.com/v1/search?query=tania&type=album"
+        );
+      });
+
+      context("passing more than one type", () => {
+        const artistsAndAlbums = search("tania", ["artist", "album"]);
+        expect(fetchedStub).to.have.been.calledWith(
+          "https://api.spotify.com/v1/search?query=tania&type=artist,album"
+        );
+      });
+    });
+
+    it("should return the JSON Data from the promise", () => {
       const artists = search("tania", "artist");
-      expect(fetchedStub).to.have.been.calledWith(
-        "https://api.spotify.com/v1/search?query=tania&type=artist"
-      );
+
+      artists.then((data) => expect(data).to.be.eql({ artist: "tania" }));
     });
   });
 });
