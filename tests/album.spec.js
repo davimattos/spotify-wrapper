@@ -2,7 +2,7 @@ import chai, { expect } from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 
-import { getAlbum, getAlbums, getAlbumTracks } from "../src/album";
+import { getAlbum, getAlbums, getAlbumTracks } from "../src";
 
 chai.use(sinonChai);
 global.fetch = require("node-fetch");

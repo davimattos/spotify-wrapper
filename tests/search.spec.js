@@ -11,9 +11,9 @@ import {
   searchArtists,
   searchPlaylists,
   searchTracks,
-} from "../src/main";
+} from "../src";
 
-describe("Spotify Wrapper", () => {
+describe("Search", () => {
   let fetchedStub;
   beforeEach(() => {
     fetchedStub = sinon.stub(global, "fetch");
